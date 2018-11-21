@@ -1,13 +1,13 @@
 ﻿@model IEnumerable<WebApplication1.Models.BangSanPham>
 
 @{
-    ViewBag.Title = "Index";
+    ViewBag.Title = "QuanLySanPham";
 }
 
-<h2>Index</h2>
+<h2>Quản Lý Sản Phẩm</h2>
 
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @Html.ActionLink("Thêm Sản Phẩm", "Create")
 </p>
 <table class="table">
     <tr>
@@ -59,11 +59,21 @@
             @Html.DisplayFor(modelItem => item.LoaiSanPham.TenLoai)
         </td>
         <td>
-            @Html.ActionLink("Edit", "Edit", new { id=item.id }) |
-            @Html.ActionLink("Details", "Details", new { id=item.id }) |
-            @Html.ActionLink("Delete", "Delete", new { id=item.id })
+            @Html.ActionLink("Sửa", "Edit", new { id=item.id }) |
+            @Html.ActionLink("Chi Tiết", "Details", new { id=item.id }) |
+            @Html.ActionLink("Xóa", "Delete", new { id=item.id })
         </td>
     </tr>
 }
 
 </table>
+
+
+<link href="//cdn.datatables.net/1.10.19/css/jquery.dataTables.min.css" rel="stylesheet" />
+<link href="//cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js" rel="stylesheet" />
+
+<script>
+    $(document).ready(function () {
+        $('#myTable').DataTable();
+    });
+</script>
