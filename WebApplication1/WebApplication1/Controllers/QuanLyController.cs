@@ -7,6 +7,7 @@ using System.Net;
 using System.Web;
 using System.Web.Mvc;
 using WebApplication1.Models;
+using System.Transactions;
 
 namespace WebApplication1.Controllers
 {
@@ -20,7 +21,12 @@ namespace WebApplication1.Controllers
             var bangsanphams = db.BangSanPhams.Include(b => b.LoaiSanPham);
             return View(bangsanphams.ToList());
         }
-
+        public FileResult Details(string id)
+        {
+            var path = Server.MapPath("~App_Data");
+            path = System.IO.Path.Combine(path, id);
+            return File(path, "image");
+        }
         // GET: /QuanLy/Details/5
         public ActionResult Details(int? id)
         {
@@ -48,19 +54,58 @@ namespace WebApplication1.Controllers
         // more details see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include="id,MaSP,TenSP,Loai_id,GiaBan,GiaGoc,GiaGop,SoLuongTon")] BangSanPham bangsanpham)
+        public ActionResult Create(BangSanPham model)
         {
+            CheckBangSanPham(model);
             if (ModelState.IsValid)
             {
-                db.BangSanPhams.Add(bangsanpham);
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                using (var scope = new TransactionScope())
+                {
+                    db.BangSanPhams.Add(model);
+                    db.SaveChanges();
+                    if (Request.Files["HinhAnh"] != null &&
+                        Request.Files["HinhAnh"].ContentLength > 0)
+                    {
+                        var path = Server.MapPath("~/App_Data");
+                        path = System.IO.Path.Combine(path, model.id.ToString());
+                        Request.Files["HinhAnh"].SaveAs(path);
+
+                        scope.Complete();
+                        return RedirectToAction("Index");
+
+
+                    }
+                    else
+                        ModelState.AddModelError("HinhAnh", "Chưa chọn hình ảnh cho sản phẩm");
+                    return RedirectToAction("Index");
+                }
             }
 
-            ViewBag.Loai_id = new SelectList(db.LoaiSanPhams, "id", "TenLoai", bangsanpham.Loai_id);
-            return View(bangsanpham);
+
+            ViewBag.Loai_id = new SelectList(db.LoaiSanPhams, "id", "TenLoai", model.Loai_id);
+            return View(model);
         }
 
+        private void CheckBangSanPham(BangSanPham model)
+        {
+            if (model.GiaGoc < 0) 
+            {
+                ModelState.AddModelError("GiaGoc", "Gia goc phai lon hon 0");
+            }
+                
+            if (model.GiaGoc < model.GiaBan)
+            { 
+                ModelState.AddModelError("GiaBan", "Gia ban phai lon hon gia goc");
+            }
+            if (model.GiaGoc < model.GiaGop)
+            { 
+                ModelState.AddModelError("GiaBan", "Gia goc phai lon hon gia gop");
+            }
+            if (model.SoLuongTon < 0)
+            { 
+                ModelState.AddModelError("SoLuongTon", "So luong ton phai lon hon 0");
+            }
+        }
         // GET: /QuanLy/Edit/5
         public ActionResult Edit(int? id)
         {

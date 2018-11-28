@@ -4,70 +4,83 @@
     ViewBag.Title = "Create";
 }
 
-<h2>Create</h2>
+<h2>Thêm Sảm Phẩm</h2>
 
 
-@using (Html.BeginForm()) 
+@using (Html.BeginForm("Create", "QuanLy", FormMethod.Post, new {enctype = "multipart/Form-data" }))
 {
     @Html.AntiForgeryToken()
     
     <div class="form-horizontal">
-        <h4>BangSanPham</h4>
+        <h4>Sản Phẩm</h4>
         <hr />
         @Html.ValidationSummary(true)
 
         <div class="form-group">
-            @Html.LabelFor(model => model.MaSP, new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.MaSP, "Mã Sản Phẩm", new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.MaSP)
+                @Html.TextBoxFor(model => model.MaSP, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.MaSP)
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.TenSP, new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.TenSP, "Tên Sản Phẩm", new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.TenSP)
+                @Html.TextBoxFor(model => model.TenSP, new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.TenSP)
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.Loai_id, "Loai_id", new { @class = "control-label col-md-2" })
+            @Html.Label("HinhAnh", "Hình Sản Phẩm", new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.DropDownList("Loai_id", String.Empty)
+                @Html.TextBox("HinhAnh", null, new { type = "File", @class = "form-control", onchange = "readURL(this);" })
+                @Html.ValidationMessage("HinhAnh")
+                <br />
+                <img id="HinhSP" src="HinhSanPham" alt="" />
+
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Loai_id, "Loại Sản Phẩm", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("Loai_id", (IEnumerable<SelectListItem>)ViewData["Loai_id"], new { @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.Loai_id)
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.GiaBan, new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.GiaGoc, "Giá Gốc", new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.GiaBan)
-                @Html.ValidationMessageFor(model => model.GiaBan)
-            </div>
-        </div>
-
-        <div class="form-group">
-            @Html.LabelFor(model => model.GiaGoc, new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.EditorFor(model => model.GiaGoc)
+                @Html.TextBoxFor(model => model.GiaGoc, new { type = "number", @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.GiaGoc)
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.GiaGop, new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.GiaBan, "Giá Bán", new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.GiaGop)
+                @Html.TextBoxFor(model => model.GiaBan, new { type = "number", @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.GiaBan)
+            </div>
+        </div>
+
+        
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.GiaGop, "Giá Trả Góp", new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.TextBoxFor(model => model.GiaGop, new { type = "number", @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.GiaGop)
             </div>
         </div>
 
         <div class="form-group">
-            @Html.LabelFor(model => model.SoLuongTon, new { @class = "control-label col-md-2" })
+            @Html.LabelFor(model => model.SoLuongTon, "Số Lượng Tồn", new { @class = "control-label col-md-2" })
             <div class="col-md-10">
-                @Html.EditorFor(model => model.SoLuongTon)
+                @Html.TextBoxFor(model => model.SoLuongTon, new { type = "number", @class = "form-control" })
                 @Html.ValidationMessageFor(model => model.SoLuongTon)
             </div>
         </div>
@@ -86,4 +99,29 @@
 
 @section Scripts {
     @Scripts.Render("~/bundles/jqueryval")
+
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/css/select2.min.css" rel="stylesheet" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.6-rc.0/js/select2.min.js"></script>
+
+    <script>
+        $(document).ready(function () {
+            $('#Loai_id').select2();
+        });
+
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#HinhSP')
+                        .attr('src', e.target.result);
+                        //.width(150)
+                        //.height(200);
+                };
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+    </script>
+   
 }
